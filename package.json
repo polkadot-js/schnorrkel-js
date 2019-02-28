@@ -4,8 +4,8 @@
   "collaborators": [
     "kianenigma <Kian.peymani@gmail.com>"
   ],
-  "version": "0.1.2-2",
+  "version": "0.1.2",
   "devDependencies": {
-    "@polkadot/util": "^0.34.23"
+    "@polkadot/util": "^0.34.33"
   }
 }
