@@ -6,6 +6,7 @@
   ],
   "version": "0.1.2",
   "devDependencies": {
-    "@polkadot/util": "^0.34.33"
+    "@polkadot/util": "^0.34.33",
+    "uglify-es": "^3.3.9"
   }
 }
