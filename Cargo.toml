@@ -1,3 +1,6 @@
+# also bump version in package.json (major.minor.patch reflects upstream,
+# the sub-identifier indicated the version of the changes made)
+
 [package]
 name = "schnorrkel-js"
 version = "0.1.2-3"
