@@ -49,7 +49,7 @@ binaryen/bin/wasm-opt pkg/schnorrkel_js_bg.wasm -Os -o pkg/schnorrkel_js_opt.was
 
 # build asmjs version from the input (optimised) WASM
 # echo "*** Building asm.js version"
-# binaryen/bin/wasm2js --no-validation --output pkg/schnorrkel_js_temp.js pkg/schnorrkel_js_bg.wasm
+# binaryen/bin/wasm2js --no-validation --output pkg/schnorrkel_js_temp.js pkg/schnorrkel_js_opt.wasm
 
 # convert wasm to base64 structure
 echo "*** Packing WASM into base64"
