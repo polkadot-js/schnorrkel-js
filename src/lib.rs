@@ -58,12 +58,24 @@ pub fn keypair_from_seed(seed: &[u8]) -> Vec<u8> {
 	__keypair_from_seed(seed).to_vec()
 }
 
+/// Perform a derivation on a publicKey
+///
+/// * public_key: UIntArray with 32 bytes
+/// * cc: UIntArray with 32 bytes
+///
+/// returned vector the derived publicKey as a array of 32 bytes
+#[wasm_bindgen]
+pub fn derive_public_simple(pubkey: &[u8], cc: &[u8]) -> Vec<u8> {
+	__derive_public_simple(pubkey, cc).to_vec()
+}
+
 #[cfg(test)]
 pub mod tests {
 	extern crate wasm_bindgen_test;
 	extern crate rand;
 	extern crate schnorrkel;
 
+	use hex_literal::{hex, hex_impl};
 	use wasm_bindgen_test::*;
 	use super::*;
 	use schnorrkel::{SIGNATURE_LENGTH, KEYPAIR_LENGTH, SECRET_KEY_LENGTH};
@@ -110,5 +122,14 @@ pub mod tests {
 		let message = b"this is a message";
 		let signature = sign(public, private, message);
 		assert!(verify(&signature[..], message, public));
+	}
+
+	#[wasm_bindgen_test]
+	#[test]
+	fn derives_public_keys() {
+		let public = hex!("46ebddef8cd9bb167dc30878d7113b7e168e6f0646beffd77d69d39bad76b47a");
+		let cc = [12, 0x66, 0x6f, 0x6f, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]; // "foo" with compact length added
+		let expected = hex!("40b9675df90efa6069ff623b0fdfcf706cd47ca7452a5056c7ad58194d23440a");
+		assert_eq!(derive_public_simple(&public, &cc), expected);
 	}
 }
