@@ -36,12 +36,12 @@ pub fn __derive_public_simple(pubkey: &[u8], junction: &[u8]) -> [u8; PUBLIC_KEY
 	pk
 }
 
-// pub fn __secret_from_seed(seed: &[u8]) -> [u8; SECRET_KEY_LENGTH] {
-// 	let secret = keypair_from_seed(seed).secret.to_bytes();
-// 	let mut s = [0u8; SECRET_KEY_LENGTH];
-// 	s.copy_from_slice(&secret);
-// 	s
-// }
+pub fn __secret_from_seed(seed: &[u8]) -> [u8; SECRET_KEY_LENGTH] {
+	let secret = keypair_from_seed(seed).secret.to_bytes();
+	let mut s = [0u8; SECRET_KEY_LENGTH];
+	s.copy_from_slice(&secret);
+	s
+}
 
 pub fn __verify(signature: &[u8], message: &[u8], pubkey: &[u8]) -> bool {
 	let sig = match Signature::from_bytes(signature) {

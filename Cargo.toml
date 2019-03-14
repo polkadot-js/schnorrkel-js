@@ -3,7 +3,7 @@
 
 [package]
 name = "schnorrkel-js"
-version = "0.2.0-1"
+version = "0.2.0-2"
 authors = ["kianenigma <Kian.peymani@gmail.com>"]
 edition = "2018"
 

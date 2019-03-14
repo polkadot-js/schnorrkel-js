@@ -37,15 +37,15 @@ pub fn verify(signature: &[u8], message: &[u8], pubkey: &[u8]) -> bool {
 	__verify(signature, message, pubkey)
 }
 
-// /// Generate a secret key (aka. private key) from a seed phrase.
-// ///
-// /// * seed: UIntArray with 32 element
-// ///
-// /// returned vector is the private key consisting of 64 bytes.
-// #[wasm_bindgen]
-// pub fn secret_from_seed(seed: &[u8]) -> Vec<u8> {
-// 	__secret_from_seed(seed).to_vec()
-// }
+/// Generate a secret key (aka. private key) from a seed phrase.
+///
+/// * seed: UIntArray with 32 element
+///
+/// returned vector is the private key consisting of 64 bytes.
+#[wasm_bindgen]
+pub fn secret_from_seed(seed: &[u8]) -> Vec<u8> {
+	__secret_from_seed(seed).to_vec()
+}
 
 /// Generate a key pair. .
 ///

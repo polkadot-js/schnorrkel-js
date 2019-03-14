@@ -4,7 +4,7 @@
   "collaborators": [
     "kianenigma <Kian.peymani@gmail.com>"
   ],
-  "version": "0.2.0-1",
+  "version": "0.2.0-2",
   "devDependencies": {
     "@polkadot/util": "^0.37.1",
     "uglify-es": "^3.3.9"
