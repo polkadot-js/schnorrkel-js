@@ -1,6 +1,14 @@
 # @polkadot/schnorrkel-js
 
-A fork of [@parity/schnorrkel-js](https://github.com/paritytech/schnorrkel-js) that allows proper operation against all the environments that the `@polkadot/api` supports
+A fork of [@parity/schnorrkel-js](https://github.com/paritytech/schnorrkel-js) that allows proper operation against all the environments that the `@polkadot/api` supports. Changes from the base repo -
+
+- WASM initialisation is done async, via Promise (this allows for clear operation in webpack environments without additional workers)
+- TextDecoder is polyfilled by using the version from `@polkadot/util` (consistent support, even on mobile)
+- WASM outputs are optimised via `wasm-opt` from the [binayen](https://github.com/WebAssembly/binaryen) project
+- Output bundle is wrapped with camelCase names (not including the `__***` internal functions) and includes full named TypeScript definitions
+- Requires for crypto is wrapped, allowing no "on-demand" require warnings in webpack environments
+- WASM output is done via a base-64 encoded string, supporting both Node.js and browser environments
+- Attempt at asm.js support (not active, commented in pre-publish.sh)
 
 # Schnorrkel-js
 

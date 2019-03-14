@@ -58,15 +58,37 @@ pub fn keypair_from_seed(seed: &[u8]) -> Vec<u8> {
 	__keypair_from_seed(seed).to_vec()
 }
 
-/// Perform a derivation on a publicKey
+/// Perform a derivation on a secret
 ///
-/// * public_key: UIntArray with 32 bytes
+/// * secret: UIntArray with 64 bytes
 /// * cc: UIntArray with 32 bytes
 ///
-/// returned vector the derived publicKey as a array of 32 bytes
+/// returned vector the derived keypair as a array of 96 bytes
 #[wasm_bindgen]
-pub fn derive_public_simple(pubkey: &[u8], cc: &[u8]) -> Vec<u8> {
-	__derive_public_simple(pubkey, cc).to_vec()
+pub fn soft_derive_keypair(pair: &[u8], cc: &[u8]) -> Vec<u8> {
+	__soft_derive_keypair(pair, cc).to_vec()
+}
+
+/// Perform a derivation on a publicKey
+///
+/// * pubkey: UIntArray with 32 bytes
+/// * cc: UIntArray with 32 bytes
+///
+/// returned vector is the derived publicKey as a array of 32 bytes
+#[wasm_bindgen]
+pub fn soft_derive_public(pubkey: &[u8], cc: &[u8]) -> Vec<u8> {
+	__soft_derive_public(pubkey, cc).to_vec()
+}
+
+/// Perform a derivation on a secret
+///
+/// * secret: UIntArray with 64 bytes
+/// * cc: UIntArray with 32 bytes
+///
+/// returned vector the derived secret as a array of 64 bytes
+#[wasm_bindgen]
+pub fn soft_derive_secret(secret: &[u8], cc: &[u8]) -> Vec<u8> {
+	__soft_derive_secret(secret, cc).to_vec()
 }
 
 #[cfg(test)]
@@ -126,10 +148,22 @@ pub mod tests {
 
 	#[wasm_bindgen_test]
 	#[test]
-	fn derives_public_keys() {
+	fn soft_derives_public_keys() {
 		let public = hex!("46ebddef8cd9bb167dc30878d7113b7e168e6f0646beffd77d69d39bad76b47a");
 		let cc = [12, 0x66, 0x6f, 0x6f, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]; // "foo" with compact length added
 		let expected = hex!("40b9675df90efa6069ff623b0fdfcf706cd47ca7452a5056c7ad58194d23440a");
-		assert_eq!(derive_public_simple(&public, &cc), expected);
+		assert_eq!(soft_derive_public(&public, &cc), expected);
+	}
+
+	#[wasm_bindgen_test]
+	#[test]
+	fn soft_derives_pairs() {
+		let seed = hex!("fac7959dbfe72f052e5a0c3c8d6530f202b02fd8f9f5ca3580ec8deb7797479e");
+		let keypair = keypair_from_seed(&seed);
+		let cc = [12, 0x66, 0x6f, 0x6f, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]; // "foo" with compact length added
+		let expected = hex!("40b9675df90efa6069ff623b0fdfcf706cd47ca7452a5056c7ad58194d23440a");
+		let derived = soft_derive_keypair(&keypair, &cc);
+		let public = &derived[SECRET_KEY_LENGTH..KEYPAIR_LENGTH];
+		assert_eq!(public, expected);
 	}
 }

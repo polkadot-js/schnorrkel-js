@@ -23,7 +23,20 @@ pub fn __keypair_from_seed(seed: &[u8]) -> [u8; KEYPAIR_LENGTH] {
 	kp
 }
 
-pub fn __derive_public_simple(pubkey: &[u8], junction: &[u8]) -> [u8; PUBLIC_KEY_LENGTH] {
+pub fn __soft_derive_keypair(pair: &[u8], junction: &[u8]) -> [u8; KEYPAIR_LENGTH] {
+	let keypair = match Keypair::from_bytes(pair) {
+		Ok(keypair) => keypair,
+		Err(_) => panic!("Provided keypair is invalid.")
+	};
+	let mut cc = [0u8; CHAIN_CODE_LENGTH];
+	cc.copy_from_slice(&junction);
+	let derived = keypair.derived_key_simple(ChainCode(cc), &[]).0;
+	let mut res = [0u8; KEYPAIR_LENGTH];
+	res.copy_from_slice(&derived.to_bytes());
+	res
+}
+
+pub fn __soft_derive_public(pubkey: &[u8], junction: &[u8]) -> [u8; PUBLIC_KEY_LENGTH] {
 	let public = match PublicKey::from_bytes(pubkey) {
 		Ok(public) => public,
 		Err(_) => panic!("Provided public key is invalid.")
@@ -31,9 +44,22 @@ pub fn __derive_public_simple(pubkey: &[u8], junction: &[u8]) -> [u8; PUBLIC_KEY
 	let mut cc = [0u8; CHAIN_CODE_LENGTH];
 	cc.copy_from_slice(&junction);
 	let derived = public.derived_key_simple(ChainCode(cc), &[]).0;
-	let mut pk = [0u8; PUBLIC_KEY_LENGTH];
-	pk.copy_from_slice(&derived.to_bytes());
-	pk
+	let mut res = [0u8; PUBLIC_KEY_LENGTH];
+	res.copy_from_slice(&derived.to_bytes());
+	res
+}
+
+pub fn __soft_derive_secret(seckey: &[u8], junction: &[u8]) -> [u8; SECRET_KEY_LENGTH] {
+	let secret = match SecretKey::from_bytes(seckey) {
+		Ok(secret) => secret,
+		Err(_) => panic!("Provided private key is invalid.")
+	};
+	let mut cc = [0u8; CHAIN_CODE_LENGTH];
+	cc.copy_from_slice(&junction);
+	let derived = secret.derived_key_simple(ChainCode(cc), &[]).0;
+	let mut res = [0u8; SECRET_KEY_LENGTH];
+	res.copy_from_slice(&derived.to_bytes());
+	res
 }
 
 pub fn __secret_from_seed(seed: &[u8]) -> [u8; SECRET_KEY_LENGTH] {

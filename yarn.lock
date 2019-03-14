@@ -9,10 +9,10 @@
   dependencies:
     regenerator-runtime "^0.12.0"
 
-"@polkadot/util@^0.37.1":
-  version "0.37.1"
-  resolved "https://registry.yarnpkg.com/@polkadot/util/-/util-0.37.1.tgz#a2f422dd9a25594ddc1d301d351588b7211a9e04"
-  integrity sha512-y6Y3I6t7Xl8ZEc5WQMZES9HQsd4URATCNqcwErLGBCKIH550QXA8lm4ZthSeiMBZ9ga6RFasIMi/ae+AfPUZhA==
+"@polkadot/util@^0.38.0-beta.1":
+  version "0.38.0-beta.1"
+  resolved "https://registry.yarnpkg.com/@polkadot/util/-/util-0.38.0-beta.1.tgz#197c1dbad20e3916f4660f197307141e2f56f0f1"
+  integrity sha512-0kbXrXHUikFXpe4yQScSyqmy+IKVL59AmuVYtjuAlg1gg2EAVQVP+GnIGg1OViLRKD3e3G6Dh2n9ltbtBHO79A==
   dependencies:
     "@babel/runtime" "^7.3.4"
     "@types/bn.js" "^4.11.4"
