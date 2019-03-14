@@ -1,6 +1,6 @@
 use schnorrkel::{signing_context, Keypair, SecretKey, MiniSecretKey, PublicKey,
 	derive::{Derrivation, ChainCode, CHAIN_CODE_LENGTH},
-	keys::{KEYPAIR_LENGTH, PUBLIC_KEY_LENGTH}, // SECRET_KEY_LENGTH
+	keys::{KEYPAIR_LENGTH, PUBLIC_KEY_LENGTH, SECRET_KEY_LENGTH},
 	sign::{Signature, SIGNATURE_LENGTH}
 };
 
