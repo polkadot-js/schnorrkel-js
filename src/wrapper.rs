@@ -1,19 +1,48 @@
 use schnorrkel::{signing_context, Keypair, SecretKey, MiniSecretKey, PublicKey,
-	derive::{Derrivation, ChainCode, CHAIN_CODE_LENGTH},
+	derive::{Derivation, ChainCode, CHAIN_CODE_LENGTH},
 	keys::{KEYPAIR_LENGTH, PUBLIC_KEY_LENGTH, SECRET_KEY_LENGTH},
 	sign::{Signature, SIGNATURE_LENGTH}
 };
 
-use sha2::Sha512;
-
 // We must make sure that this is the same as declared in the substrate source code.
 const SIGNING_CTX: &[u8] = b"substrate";
+const DERIVE_CTX: &[u8] = b"SchnorrRistrettoHDKD";
 
 /// Private helper function.
 fn keypair_from_seed(seed: &[u8]) -> Keypair {
-	let mini_key: MiniSecretKey = MiniSecretKey::from_bytes(seed)
-		.expect("32 bytes can always build a key; qed");
-	mini_key.expand_to_keypair::<Sha512>()
+	MiniSecretKey::from_bytes(seed)
+		.expect("32 bytes can always build a key; qed")
+		.expand_to_keypair()
+}
+
+pub fn __hard_derive_keypair(secret: &[u8], cc: &[u8]) -> [u8; KEYPAIR_LENGTH] {
+	let secret = match SecretKey::from_bytes(secret) {
+		Ok(secret) => secret,
+		Err(_) => panic!("Provided private key is invalid.")
+	};
+	let derived = secret
+		.hard_derive_mini_secret_key(signing_context(DERIVE_CTX).bytes(&cc[..]))
+		.expand()
+		.to_keypair()
+		.to_bytes();
+
+	let mut res = [0u8; KEYPAIR_LENGTH];
+	res.copy_from_slice(&derived);
+	res
+}
+
+pub fn __hard_derive_secret(secret: &[u8], cc: &[u8]) -> [u8; SECRET_KEY_LENGTH] {
+	let secret = match SecretKey::from_bytes(secret) {
+		Ok(secret) => secret,
+		Err(_) => panic!("Provided private key is invalid.")
+	};
+	let derived = secret
+		.hard_derive_mini_secret_key(signing_context(DERIVE_CTX).bytes(&cc[..]))
+		.expand();
+
+	let mut res = [0u8; SECRET_KEY_LENGTH];
+	res.copy_from_slice(&derived.to_bytes());
+	res
 }
 
 pub fn __keypair_from_seed(seed: &[u8]) -> [u8; KEYPAIR_LENGTH] {

@@ -65,6 +65,17 @@ pub fn keypair_from_seed(seed: &[u8]) -> Vec<u8> {
 ///
 /// returned vector the derived keypair as a array of 96 bytes
 #[wasm_bindgen]
+pub fn hard_derive_keypair(pair: &[u8], cc: &[u8]) -> Vec<u8> {
+	__hard_derive_keypair(pair, cc).to_vec()
+}
+
+/// Perform a derivation on a secret
+///
+/// * secret: UIntArray with 64 bytes
+/// * cc: UIntArray with 32 bytes
+///
+/// returned vector the derived keypair as a array of 96 bytes
+#[wasm_bindgen]
 pub fn soft_derive_keypair(pair: &[u8], cc: &[u8]) -> Vec<u8> {
 	__soft_derive_keypair(pair, cc).to_vec()
 }
@@ -87,18 +98,29 @@ pub fn soft_derive_public(pubkey: &[u8], cc: &[u8]) -> Vec<u8> {
 ///
 /// returned vector the derived secret as a array of 64 bytes
 #[wasm_bindgen]
+pub fn hard_derive_secret(secret: &[u8], cc: &[u8]) -> Vec<u8> {
+	__hard_derive_secret(secret, cc).to_vec()
+}
+
+/// Perform a derivation on a secret
+///
+/// * secret: UIntArray with 64 bytes
+/// * cc: UIntArray with 32 bytes
+///
+/// returned vector the derived secret as a array of 64 bytes
+#[wasm_bindgen]
 pub fn soft_derive_secret(secret: &[u8], cc: &[u8]) -> Vec<u8> {
 	__soft_derive_secret(secret, cc).to_vec()
 }
 
 #[cfg(test)]
 pub mod tests {
-	extern crate wasm_bindgen_test;
+	// extern crate wasm_bindgen_test;
 	extern crate rand;
 	extern crate schnorrkel;
 
 	use hex_literal::{hex, hex_impl};
-	use wasm_bindgen_test::*;
+	// use wasm_bindgen_test::*;
 	use super::*;
 	use schnorrkel::{SIGNATURE_LENGTH, KEYPAIR_LENGTH, SECRET_KEY_LENGTH};
 
@@ -110,21 +132,33 @@ pub mod tests {
 		(0..32).map(|_| rand::random::<u8>() ).collect()
 	}
 
-	#[wasm_bindgen_test]
+	// #[wasm_bindgen_test]
+	#[test]
 	fn can_create_keypair() {
 		let seed = generate_random_seed();
 		let keypair = keypair_from_seed(seed.as_slice());
 		assert!(keypair.len() == KEYPAIR_LENGTH);
 	}
 
-	#[wasm_bindgen_test]
+	#[test]
+	fn creates_pair_from_known() {
+		let seed = hex!("fac7959dbfe72f052e5a0c3c8d6530f202b02fd8f9f5ca3580ec8deb7797479e");
+		let expected = hex!("46ebddef8cd9bb167dc30878d7113b7e168e6f0646beffd77d69d39bad76b47a");
+		let keypair = keypair_from_seed(&seed);
+		let public = &keypair[SECRET_KEY_LENGTH..KEYPAIR_LENGTH];
+		assert_eq!(public, expected);
+	}
+
+	// #[wasm_bindgen_test]
+	#[test]
 	fn can_create_secret() {
 		let seed = generate_random_seed();
 		let secret = secret_from_seed(seed.as_slice());
 		assert!(secret.len() == SECRET_KEY_LENGTH);
 	}
 
-	#[wasm_bindgen_test]
+	// #[wasm_bindgen_test]
+	#[test]
 	fn can_sign_message() {
 		let seed = generate_random_seed();
 		let keypair = keypair_from_seed(seed.as_slice());
@@ -135,7 +169,8 @@ pub mod tests {
 		assert!(signature.len() == SIGNATURE_LENGTH);
 	}
 
-	#[wasm_bindgen_test]
+	// #[wasm_bindgen_test]
+	#[test]
 	fn can_verify_message() {
 		let seed = generate_random_seed();
 		let keypair = keypair_from_seed(seed.as_slice());
@@ -146,7 +181,7 @@ pub mod tests {
 		assert!(verify(&signature[..], message, public));
 	}
 
-	#[wasm_bindgen_test]
+	// #[wasm_bindgen_test]
 	#[test]
 	fn soft_derives_public_keys() {
 		let public = hex!("46ebddef8cd9bb167dc30878d7113b7e168e6f0646beffd77d69d39bad76b47a");
@@ -155,7 +190,7 @@ pub mod tests {
 		assert_eq!(soft_derive_public(&public, &cc), expected);
 	}
 
-	#[wasm_bindgen_test]
+	// #[wasm_bindgen_test]
 	#[test]
 	fn soft_derives_pairs() {
 		let seed = hex!("fac7959dbfe72f052e5a0c3c8d6530f202b02fd8f9f5ca3580ec8deb7797479e");
@@ -163,6 +198,19 @@ pub mod tests {
 		let cc = [12, 0x66, 0x6f, 0x6f, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]; // "foo" with compact length added
 		let expected = hex!("40b9675df90efa6069ff623b0fdfcf706cd47ca7452a5056c7ad58194d23440a");
 		let derived = soft_derive_keypair(&keypair, &cc);
+		let public = &derived[SECRET_KEY_LENGTH..KEYPAIR_LENGTH];
+		assert_eq!(public, expected);
+	}
+
+	// #[wasm_bindgen_test]
+	#[test]
+	fn hard_derives_pairs() {
+		let seed = hex!("fac7959dbfe72f052e5a0c3c8d6530f202b02fd8f9f5ca3580ec8deb7797479e");
+		let keypair = keypair_from_seed(&seed);
+		let cc = [20, 65, 108, 105, 99, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; // "Alice" with compact length added
+		let expected = hex!("56443a3a9173a22315838b38410cfe9d67feadfcea71e4894e3f9fd15ec1117f");
+		let private = &keypair[0..SECRET_KEY_LENGTH];
+		let derived = hard_derive_keypair(&private, &cc);
 		let public = &derived[SECRET_KEY_LENGTH..KEYPAIR_LENGTH];
 		assert_eq!(public, expected);
 	}
