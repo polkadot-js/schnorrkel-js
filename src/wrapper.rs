@@ -23,8 +23,7 @@ pub fn __hard_derive_keypair(pair: &[u8], cc: &[u8]) -> [u8; KEYPAIR_LENGTH] {
 	let derived = pair
 		.secret
 		.hard_derive_mini_secret_key(signing_context(DERIVE_CTX).bytes(&cc[..]))
-		.expand()
-		.to_keypair()
+		.expand_to_keypair()
 		.to_bytes();
 
 	let mut res = [0u8; KEYPAIR_LENGTH];
