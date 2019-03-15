@@ -15,12 +15,13 @@ fn keypair_from_seed(seed: &[u8]) -> Keypair {
 		.expand_to_keypair()
 }
 
-pub fn __hard_derive_keypair(secret: &[u8], cc: &[u8]) -> [u8; KEYPAIR_LENGTH] {
-	let secret = match SecretKey::from_bytes(secret) {
-		Ok(secret) => secret,
-		Err(_) => panic!("Provided private key is invalid.")
+pub fn __hard_derive_keypair(pair: &[u8], cc: &[u8]) -> [u8; KEYPAIR_LENGTH] {
+	let pair = match Keypair::from_bytes(pair) {
+		Ok(pair) => pair,
+		Err(_) => panic!("Provided pair is invalid.")
 	};
-	let derived = secret
+	let derived = pair
+		.secret
 		.hard_derive_mini_secret_key(signing_context(DERIVE_CTX).bytes(&cc[..]))
 		.expand()
 		.to_keypair()

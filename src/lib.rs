@@ -209,8 +209,7 @@ pub mod tests {
 		let keypair = keypair_from_seed(&seed);
 		let cc = [20, 65, 108, 105, 99, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; // "Alice" with compact length added
 		let expected = hex!("56443a3a9173a22315838b38410cfe9d67feadfcea71e4894e3f9fd15ec1117f");
-		let private = &keypair[0..SECRET_KEY_LENGTH];
-		let derived = hard_derive_keypair(&private, &cc);
+		let derived = hard_derive_keypair(&keypair, &cc);
 		let public = &derived[SECRET_KEY_LENGTH..KEYPAIR_LENGTH];
 		assert_eq!(public, expected);
 	}
