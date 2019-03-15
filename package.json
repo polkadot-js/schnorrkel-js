@@ -4,8 +4,10 @@
   "collaborators": [
     "kianenigma <Kian.peymani@gmail.com>"
   ],
-  "version": "0.2.0-5",
+  "version": "0.2.0-7",
   "devDependencies": {
-    "@polkadot/util": "^0.38.0-beta.2"
+    "@polkadot/dev": "^0.26.1",
+    "@polkadot/util": "^0.38.0-beta.2",
+    "@polkadot/util-crypto": "^0.38.0-beta.2"
   }
 }
