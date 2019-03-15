@@ -1,6 +1,6 @@
 use schnorrkel::{signing_context, Keypair, SecretKey, MiniSecretKey, PublicKey,
 	derive::{Derivation, ChainCode, CHAIN_CODE_LENGTH},
-	keys::{KEYPAIR_LENGTH, PUBLIC_KEY_LENGTH, SECRET_KEY_LENGTH},
+	keys::{KEYPAIR_LENGTH, MINI_SECRET_KEY_LENGTH, PUBLIC_KEY_LENGTH, SECRET_KEY_LENGTH},
 	sign::{Signature, SIGNATURE_LENGTH}
 };
 
@@ -27,6 +27,17 @@ pub fn __hard_derive_keypair(pair: &[u8], cc: &[u8]) -> [u8; KEYPAIR_LENGTH] {
 		.to_bytes();
 
 	let mut res = [0u8; KEYPAIR_LENGTH];
+	res.copy_from_slice(&derived);
+	res
+}
+
+pub fn __hard_derive_seed(seed: &[u8], cc: &[u8]) -> [u8; MINI_SECRET_KEY_LENGTH] {
+	let derived = keypair_from_seed(seed)
+		.secret
+		.hard_derive_mini_secret_key(signing_context(DERIVE_CTX).bytes(&cc[..]))
+		.to_bytes();
+
+	let mut res = [0u8; MINI_SECRET_KEY_LENGTH];
 	res.copy_from_slice(&derived);
 	res
 }

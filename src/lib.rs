@@ -47,17 +47,6 @@ pub fn secret_from_seed(seed: &[u8]) -> Vec<u8> {
 	__secret_from_seed(seed).to_vec()
 }
 
-/// Generate a key pair. .
-///
-/// * seed: UIntArray with 32 element
-///
-/// returned vector is the concatenation of first the private key (64 bytes)
-/// followed by the public key (32) bytes.
-#[wasm_bindgen]
-pub fn keypair_from_seed(seed: &[u8]) -> Vec<u8> {
-	__keypair_from_seed(seed).to_vec()
-}
-
 /// Perform a derivation on a secret
 ///
 /// * secret: UIntArray with 64 bytes
@@ -67,6 +56,39 @@ pub fn keypair_from_seed(seed: &[u8]) -> Vec<u8> {
 #[wasm_bindgen]
 pub fn hard_derive_keypair(pair: &[u8], cc: &[u8]) -> Vec<u8> {
 	__hard_derive_keypair(pair, cc).to_vec()
+}
+
+/// Perform a derivation on a seed
+///
+/// * seed: UIntArray with 32 bytes
+/// * cc: UIntArray with 32 bytes
+///
+/// returned vector the derived keypair as a array of 32 bytes
+#[wasm_bindgen]
+pub fn hard_derive_seed(seed: &[u8], cc: &[u8]) -> Vec<u8> {
+	__hard_derive_seed(seed, cc).to_vec()
+}
+
+/// Perform a derivation on a secret
+///
+/// * secret: UIntArray with 64 bytes
+/// * cc: UIntArray with 32 bytes
+///
+/// returned vector the derived secret as a array of 64 bytes
+#[wasm_bindgen]
+pub fn hard_derive_secret(secret: &[u8], cc: &[u8]) -> Vec<u8> {
+	__hard_derive_secret(secret, cc).to_vec()
+}
+
+/// Generate a key pair. .
+///
+/// * seed: UIntArray with 32 element
+///
+/// returned vector is the concatenation of first the private key (64 bytes)
+/// followed by the public key (32) bytes.
+#[wasm_bindgen]
+pub fn keypair_from_seed(seed: &[u8]) -> Vec<u8> {
+	__keypair_from_seed(seed).to_vec()
 }
 
 /// Perform a derivation on a secret
@@ -89,17 +111,6 @@ pub fn soft_derive_keypair(pair: &[u8], cc: &[u8]) -> Vec<u8> {
 #[wasm_bindgen]
 pub fn soft_derive_public(pubkey: &[u8], cc: &[u8]) -> Vec<u8> {
 	__soft_derive_public(pubkey, cc).to_vec()
-}
-
-/// Perform a derivation on a secret
-///
-/// * secret: UIntArray with 64 bytes
-/// * cc: UIntArray with 32 bytes
-///
-/// returned vector the derived secret as a array of 64 bytes
-#[wasm_bindgen]
-pub fn hard_derive_secret(secret: &[u8], cc: &[u8]) -> Vec<u8> {
-	__hard_derive_secret(secret, cc).to_vec()
 }
 
 /// Perform a derivation on a secret
@@ -211,6 +222,17 @@ pub mod tests {
 		let expected = hex!("56443a3a9173a22315838b38410cfe9d67feadfcea71e4894e3f9fd15ec1117f");
 		let derived = hard_derive_keypair(&keypair, &cc);
 		let public = &derived[SECRET_KEY_LENGTH..KEYPAIR_LENGTH];
+		assert_eq!(public, expected);
+	}
+
+	#[test]
+	fn hard_derives_seed() {
+		let seed = hex!("fac7959dbfe72f052e5a0c3c8d6530f202b02fd8f9f5ca3580ec8deb7797479e");
+		let cc = [20, 65, 108, 105, 99, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; // "Alice" with compact length added
+		let derived = hard_derive_seed(&seed, &cc);
+		let keypair = keypair_from_seed(&derived);
+		let expected = hex!("56443a3a9173a22315838b38410cfe9d67feadfcea71e4894e3f9fd15ec1117f");
+		let public = &keypair[SECRET_KEY_LENGTH..KEYPAIR_LENGTH];
 		assert_eq!(public, expected);
 	}
 }
