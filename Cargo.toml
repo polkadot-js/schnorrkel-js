@@ -3,7 +3,7 @@
 
 [package]
 name = "schnorrkel-js"
-version = "0.2.0-10"
+version = "0.2.0-11"
 authors = ["kianenigma <Kian.peymani@gmail.com>", "Jaco Greeff <jacogr@gmail.com>"]
 edition = "2018"
 
@@ -13,8 +13,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 wasm-bindgen = { version = "0.2" }
 wee_alloc = { version = "0.4.3" }
-# schnorrkel = { version = "0.0", features = ["nightly"]}
-schnorrkel = { git = "https://github.com/w3f/schnorrkel", rev = "0a0de4294b475ef6abdeebb50067f213ca79b3c7", features = ["nightly"] }
+schnorrkel = { git = "https://github.com/w3f/schnorrkel", rev = "d3289df76b8ae6dfb68e733204c5c009df5343a9", features = ["nightly"] }
 
 [dev-dependencies]
 hex-literal = { version = "0.1.4" }

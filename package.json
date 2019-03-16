@@ -5,7 +5,7 @@
     "kianenigma <Kian.peymani@gmail.com>",
     "Jaco Greeff <jacogr@gmail.com>"
   ],
-  "version": "0.2.0-10",
+  "version": "0.2.0-11",
   "devDependencies": {
     "@polkadot/dev": "^0.27.1",
     "@polkadot/util": "*"

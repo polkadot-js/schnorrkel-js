@@ -3,10 +3,8 @@ extern crate wee_alloc;
 extern crate schnorrkel;
 
 use schnorrkel::{
-	signing_context, Keypair, SecretKey, MiniSecretKey, PublicKey,
+	Keypair, MiniSecretKey, PublicKey, SecretKey, Signature,
 	derive::{Derivation, ChainCode, CHAIN_CODE_LENGTH},
-	keys::{KEYPAIR_LENGTH, PUBLIC_KEY_LENGTH},
-	sign::{Signature}
 };
 use wasm_bindgen::prelude::*;
 
@@ -16,15 +14,14 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 // We must make sure that this is the same as declared in the substrate source code.
 const SIGNING_CTX: &'static [u8] = b"substrate";
-const DERIVE_CTX: &'static [u8] = b"SchnorrRistrettoHDKD";
 
 /// ChainCode construction helper
-fn create_cc(cc: &[u8]) -> ChainCode {
-	let mut data = [0u8; CHAIN_CODE_LENGTH];
+fn create_cc(data: &[u8]) -> ChainCode {
+	let mut cc = [0u8; CHAIN_CODE_LENGTH];
 
-	data.copy_from_slice(&cc);
+	cc.copy_from_slice(&data);
 
-	ChainCode(data)
+	ChainCode(cc)
 }
 
 /// Keypair helper function.
@@ -51,6 +48,14 @@ fn create_public(public: &[u8]) -> PublicKey {
 	}
 }
 
+/// SecretKey helper
+fn create_secret(secret: &[u8]) -> SecretKey {
+	match SecretKey::from_bytes(secret) {
+		Ok(secret) => return secret,
+		Err(_) => panic!("Provided private key is invalid.")
+	}
+}
+
 /// Perform a derivation on a secret
 ///
 /// * secret: UIntArray with 64 bytes
@@ -59,15 +64,11 @@ fn create_public(public: &[u8]) -> PublicKey {
 /// returned vector the derived keypair as a array of 96 bytes
 #[wasm_bindgen]
 pub fn derive_keypair_hard(pair: &[u8], cc: &[u8]) -> Vec<u8> {
-	let pair = create_from_pair(pair);
-	let derived = pair
-		.secret
-		.hard_derive_mini_secret_key(signing_context(DERIVE_CTX).bytes(cc))
-		.expand_to_keypair();
-	let mut res = [0u8; KEYPAIR_LENGTH];
-
-	res.copy_from_slice(&derived.to_bytes());
-	res.to_vec()
+	create_from_pair(pair).secret
+		.hard_derive_mini_secret_key(Some(create_cc(cc)), &[]).0
+		.expand_to_keypair()
+		.to_bytes()
+		.to_vec()
 }
 
 /// Perform a derivation on a secret
@@ -78,12 +79,10 @@ pub fn derive_keypair_hard(pair: &[u8], cc: &[u8]) -> Vec<u8> {
 /// returned vector the derived keypair as a array of 96 bytes
 #[wasm_bindgen]
 pub fn derive_keypair_soft(pair: &[u8], cc: &[u8]) -> Vec<u8> {
-	let keypair = create_from_pair(pair);
-	let derived = keypair.derived_key_simple(create_cc(cc), &[]).0;
-	let mut res = [0u8; KEYPAIR_LENGTH];
-
-	res.copy_from_slice(&derived.to_bytes());
-	res.to_vec()
+	create_from_pair(pair)
+		.derived_key_simple(create_cc(cc), &[]).0
+		.to_bytes()
+		.to_vec()
 }
 
 /// Perform a derivation on a publicKey
@@ -94,12 +93,9 @@ pub fn derive_keypair_soft(pair: &[u8], cc: &[u8]) -> Vec<u8> {
 /// returned vector is the derived publicKey as a array of 32 bytes
 #[wasm_bindgen]
 pub fn derive_public_soft(public: &[u8], cc: &[u8]) -> Vec<u8> {
-	let public = create_public(public);
-	let derived = public.derived_key_simple(create_cc(cc), &[]).0;
-	let mut res = [0u8; PUBLIC_KEY_LENGTH];
-
-	res.copy_from_slice(&derived.to_bytes());
-	res.to_vec()
+	create_public(public)
+		.derived_key_simple(create_cc(cc), &[]).0
+		.to_bytes().to_vec()
 }
 
 /// Generate a key pair.
@@ -110,11 +106,9 @@ pub fn derive_public_soft(public: &[u8], cc: &[u8]) -> Vec<u8> {
 /// followed by the public key (32) bytes.
 #[wasm_bindgen]
 pub fn keypair_from_seed(seed: &[u8]) -> Vec<u8> {
-	let keypair = create_from_seed(seed);
-	let mut res = [0u8; KEYPAIR_LENGTH];
-
-	res.copy_from_slice(&keypair.to_bytes());
-	res.to_vec()
+	create_from_seed(seed)
+		.to_bytes()
+		.to_vec()
 }
 
 /// Sign a message
@@ -129,14 +123,8 @@ pub fn keypair_from_seed(seed: &[u8]) -> Vec<u8> {
 /// * returned vector is the signature consisting of 64 bytes.
 #[wasm_bindgen]
 pub fn sign(public: &[u8], secret: &[u8], message: &[u8]) -> Vec<u8> {
-	let secret = match SecretKey::from_bytes(secret) {
-		Ok(secret) => secret,
-		Err(_) => panic!("Provided private key is invalid.")
-	};
-	let public = create_public(public);
-
-	secret
-		.sign_simple(SIGNING_CTX, message, &public)
+	create_secret(secret)
+		.sign_simple(SIGNING_CTX, message, &create_public(public))
 		.to_bytes()
 		.to_vec()
 }
@@ -152,9 +140,9 @@ pub fn verify(signature: &[u8], message: &[u8], public: &[u8]) -> bool {
 		Ok(signature) => signature,
 		Err(_) => return false
 	};
-	let public = create_public(public);
 
-	public.verify_simple(SIGNING_CTX, message, &signature)
+	create_public(public)
+		.verify_simple(SIGNING_CTX, message, &signature)
 }
 
 #[cfg(test)]
@@ -237,7 +225,7 @@ pub mod tests {
 	fn hard_derives_pair() {
 		let cc = hex!("14416c6963650000000000000000000000000000000000000000000000000000"); // Alice
 		let seed = hex!("fac7959dbfe72f052e5a0c3c8d6530f202b02fd8f9f5ca3580ec8deb7797479e");
-		let expected = hex!("56443a3a9173a22315838b38410cfe9d67feadfcea71e4894e3f9fd15ec1117f");
+		let expected = hex!("d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d");
 		let keypair = keypair_from_seed(&seed);
 		let derived = derive_keypair_hard(&keypair, &cc);
 		let public = &derived[SECRET_KEY_LENGTH..KEYPAIR_LENGTH];

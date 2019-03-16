@@ -95,6 +95,25 @@ async function deriveHard () {
   console.log('\tPUB', u8aToHex(derived.slice(64)));
 }
 
+async function deriveHardKnown () {
+  const CC = hexToU8a('0x14416c6963650000000000000000000000000000000000000000000000000000');
+  const PAIR = hexToU8a(
+    '0x' +
+    '28b0ae221c6bb06856b287f60d7ea0d98552ea5a16db16956849aa371db3eb51' +
+    'fd190cce74df356432b410bd64682309d6dedb27c76845daf388557cbac3ca34' +
+    '46ebddef8cd9bb167dc30878d7113b7e168e6f0646beffd77d69d39bad76b47a'
+  );
+  const PUBLIC = '0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d';
+
+  const derived = schnorrkel.deriveKeypairHard(PAIR, CC);
+  const publicKey = u8aToHex(derived.slice(64));
+
+  console.log('\tSEC', u8aToHex(derived.slice(0, 64)));
+  console.log('\tPUB', publicKey);
+
+  assert(publicKey === PUBLIC, 'Unmatched resulting public keys');
+}
+
 async function deriveSoft () {
   const CC = hexToU8a('0x0c666f6f00000000000000000000000000000000000000000000000000000000');
 
@@ -153,6 +172,7 @@ const tests = {
   pairFromSeed,
   devFromSeed,
   deriveHard,
+  deriveHardKnown,
   deriveSoft,
   deriveSoftKnown,
   deriveSoftPubkey,
