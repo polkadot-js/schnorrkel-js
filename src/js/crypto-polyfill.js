@@ -7,6 +7,12 @@ if (!global.crypto) {
 
 if (!global.crypto.getRandomValues) {
   global.crypto.getRandomValues = function (arr) {
-    crypto.randomBytes(arr.length);
+    const buffer = crypto.randomBytes(arr.length);
+
+    return buffer.reduce((arr, value, index) => {
+      arr[index] = value;
+
+      return arr;
+    }, arr);
   }
 }
