@@ -1,10 +1,12 @@
 // @ts-check
-if (!global.crypto || !global.crypto.getRandomValues) {
-  const crypto = require('crypto');
+const crypto = require('crypto');
 
-  Object.defineProperty(global.self, 'crypto', {
-    value: {
-      getRandomValues: (arr) => crypto.randomBytes(arr.length)
-    }
-  });
+if (!global.crypto) {
+  global.crypto = {};
+}
+
+if (!global.crypto.getRandomValues) {
+  global.crypto.getRandomValues = function (arr) {
+    crypto.randomBytes(arr.length);
+  }
 }

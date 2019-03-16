@@ -3,12 +3,12 @@
 
 [package]
 name = "schnorrkel-js"
-version = "0.2.0-8"
+version = "0.2.0-10"
 authors = ["kianenigma <Kian.peymani@gmail.com>", "Jaco Greeff <jacogr@gmail.com>"]
 edition = "2018"
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 wasm-bindgen = { version = "0.2" }
