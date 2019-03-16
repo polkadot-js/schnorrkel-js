@@ -70,7 +70,7 @@ PKG=pkg/package.json
 
 # update the files (new addition)
 # excluded: "schnorrkel_js_asm\.js",
-sed -i -e 's/schnorrkel_js_bg\.wasm/schnorrkel_js_wasm\.js", "index\.js", "index\.d\.ts/g' $PKG
+sed -i -e 's/schnorrkel_js_bg\.wasm/schnorrkel_js_wasm\.js", "index\.js", "index\.d\.ts", "crypto-polyfill\.js/g' $PKG
 sed -i -e 's/"main": "schnorrkel_js\.js"/"main": "index\.js"/g' $PKG
 sed -i -e 's/"types": "schnorrkel_js\.d\.ts"/"types": "index\.d\.ts"/g' $PKG
 

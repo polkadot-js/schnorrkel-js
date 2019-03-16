@@ -1,8 +1,9 @@
-require('@polkadot/util-crypto/schnorrkel/test-polyfill');
+// @ts-check
+require('../pkg/crypto-polyfill');
 
 const { beforeAll, tests } = require('./all.js');
 
-describe('wasm-schnorrkel', () => {
+describe('schnorrkel-js', () => {
   beforeEach(async () => {
     await beforeAll();
   });
